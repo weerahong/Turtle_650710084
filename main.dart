@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:loading_btn/loading_btn.dart';
 import 'history.dart';
+import 'setting.dart';
 
 void main() {
   runApp(const CurrencyConverterApp());
@@ -113,7 +114,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red, // เปลี่ยนสีพื้นหลังเป็นสีแดง
+        backgroundColor: const Color.fromARGB(255, 51, 122, 255), // เปลี่ยนสีพื้นหลังเป็นสีแดง
         title: const Text(
           'Currency Converter',
           style: TextStyle(
@@ -133,12 +134,24 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Image.asset('assets/icon.png', height: 200),
+            const SizedBox(height: 16),
+
             TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,
@@ -188,9 +201,9 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
             const SizedBox(height: 16),
             LoadingBtn(
               height: 50,
-              borderRadius: 8,
+              borderRadius: 30,
               animate: true,
-              color: Colors.red,
+              color: const Color.fromARGB(255, 45, 203, 17),
               width: MediaQuery.of(context).size.width * 0.45,
               loader: Container(
                 padding: const EdgeInsets.all(10),
@@ -206,7 +219,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
                   await Future.delayed(const Duration(seconds: 1));
                   await _convertCurrency();
                   stopLoading();
-                }  
+                }
               }),
               child: const Text(
                 'Convert',

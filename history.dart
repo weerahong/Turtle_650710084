@@ -27,46 +27,150 @@ class ConversionHistoryPage extends StatefulWidget {
 }
 
 class _ConversionHistoryPageState extends State<ConversionHistoryPage> {
+  List<ConversionHistory> _history = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _history = widget.history;
+  }
+
+  // ฟังก์ชันลบประวัติแต่ละรายการ
+  void _deleteHistoryItem(int index) {
+    setState(() {
+      _history.removeAt(index);
+    });
+  }
+
+  // ฟังก์ชันล้างประวัติทั้งหมด
   void _clearHistory() {
     setState(() {
-      widget.history.clear();
+      _history.clear();
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('History cleared')),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red, // เปลี่ยนสีพื้นหลังเป็นสีแดง
-        title: const  Text(
-          'Conversion History',
+        backgroundColor: const Color.fromARGB(255, 51, 122, 255), // เปลี่ยนสีพื้นหลังเป็นสีแดง
+        title: const Text(
+          'Concersion Historyr',
           style: TextStyle(
             color: Colors.white, // เปลี่ยนสีตัวหนังสือเป็นสีขาว
             fontWeight: FontWeight.bold
           ),
         ),
+        actions: [
+          // ปุ่มล้างประวัติ
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.white,),
+            onPressed: _history.isNotEmpty
+                ? () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Confirm'),
+                        content: const Text('Are you sure you want to clear all history?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              _clearHistory();
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Clear'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                : null, // ปิดการใช้งานถ้าไม่มีประวัติ
+          )
+        ],
       ),
-      body: widget.history.isEmpty
-          ? const Center(child: Text('No conversion history'))
-          : ListView.builder(
-              itemCount: widget.history.length,
-              itemBuilder: (context, index) {
-                final historyItem = widget.history[index];
-                return ListTile(
-                  title: Text(
-                      '${historyItem.amount} ${historyItem.fromCurrency} -> ${historyItem.convertedAmount.toStringAsFixed(2)} ${historyItem.toCurrency}'),
-                  subtitle: Text(
-                      'Date: ${historyItem.timestamp.toLocal().toString().split(' ')[0]}'),
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _clearHistory,
-        backgroundColor: Colors.red,
-        child: const Icon(Icons.delete, color: Colors.white,),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: _history.isNotEmpty
+            ? ListView.builder(
+                itemCount: _history.length,
+                itemBuilder: (context, index) {
+                  final item = _history[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 5,
+                    child: ListTile(
+                      title: Text(
+                        'From: ${item.fromCurrency} To: ${item.toCurrency}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          Text(
+                            'Amount: ${item.amount.toStringAsFixed(2)}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            'Converted: ${item.convertedAmount.toStringAsFixed(2)}',
+                            style: const TextStyle(fontSize: 16, color: Colors.green),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Date: ${item.timestamp}',
+                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Confirm Delete'),
+                              content: const Text('Are you sure you want to delete this item?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    _deleteHistoryItem(index);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
+              )
+            : const Center(
+                child: Text(
+                  'No history available.',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
       ),
     );
   }
